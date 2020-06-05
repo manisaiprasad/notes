@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a Sentiment Analysis Web App | ManiSaiPrasad</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Creating a Sentiment Analysis Web App" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<meta property="og:description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<link rel="canonical" href="https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html" />
+<meta property="og:url" content="https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html" />
+<meta property="og:site_name" content="ManiSaiPrasad" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-06-04T00:00:00-05:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html"},"description":"An easy to use blogging platform with support for Jupyter Notebooks.","@type":"BlogPosting","url":"https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html","headline":"Creating a Sentiment Analysis Web App","dateModified":"2020-06-04T00:00:00-05:00","datePublished":"2020-06-04T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/notes/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://manisaiprasad.github.io/notes/feed.xml" title="ManiSaiPrasad" /><link rel="shortcut icon" type="image/x-icon" href="/notes/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a Sentiment Analysis Web App | ManiSaiPrasad</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Creating a Sentiment Analysis Web App" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<meta property="og:description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<link rel="canonical" href="https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html" />
+<meta property="og:url" content="https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html" />
+<meta property="og:site_name" content="ManiSaiPrasad" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-06-04T00:00:00-05:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html"},"description":"An easy to use blogging platform with support for Jupyter Notebooks.","@type":"BlogPosting","url":"https://manisaiprasad.github.io/notes/2020/06/04/SageMaker-Project.html","headline":"Creating a Sentiment Analysis Web App","dateModified":"2020-06-04T00:00:00-05:00","datePublished":"2020-06-04T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://manisaiprasad.github.io/notes/feed.xml" title="ManiSaiPrasad" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/notes/">ManiSaiPrasad</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/notes/about/">About Me</a><a class="page-link" href="/notes/search/">Search</a><a class="page-link" href="/notes/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating a Sentiment Analysis Web App</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-06-04T00:00:00-05:00" itemprop="datePublished">
+        Jun 4, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      46 min read
+    
+</span></p>
+
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/manisaiprasad/notes/tree/master/_notebooks/2020-06-04-SageMaker Project.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/notes/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/manisaiprasad/notes/master?filepath=_notebooks%2F2020-06-04-SageMaker+Project.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/notes/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/manisaiprasad/notes/blob/master/_notebooks/2020-06-04-SageMaker Project.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/notes/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-06-04-SageMaker Project.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-1:-Downloading-the-data">Step 1: Downloading the data<a class="anchor-link" href="#Step-1:-Downloading-the-data"> </a></h2><p>As in the XGBoost in SageMaker notebook, we will be using the <a href="http://ai.stanford.edu/~amaas/data/sentiment/">IMDb dataset</a></p>
+<blockquote><p>Maas, Andrew L., et al. <a href="http://ai.stanford.edu/~amaas/data/sentiment/">Learning Word Vectors for Sentiment Analysis</a>. In <em>Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies</em>. Association for Computational Linguistics, 2011.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">mkdir</span> ../data
+<span class="o">!</span>wget -O ../data/aclImdb_v1.tar.gz http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
+<span class="o">!</span>tar -zxf ../data/aclImdb_v1.tar.gz -C ../data
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>mkdir: cannot create directory ‘../data’: File exists
+--2020-06-04 12:40:34--  http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
+Resolving ai.stanford.edu (ai.stanford.edu)... 171.64.68.10
+Connecting to ai.stanford.edu (ai.stanford.edu)|171.64.68.10|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 84125825 (80M) [application/x-gzip]
+Saving to: ‘../data/aclImdb_v1.tar.gz’
+
+../data/aclImdb_v1. 100%[===================&gt;]  80.23M  22.6MB/s    in 4.8s    
+
+2020-06-04 12:40:39 (16.8 MB/s) - ‘../data/aclImdb_v1.tar.gz’ saved [84125825/84125825]
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-2:-Preparing-and-Processing-the-data">Step 2: Preparing and Processing the data<a class="anchor-link" href="#Step-2:-Preparing-and-Processing-the-data"> </a></h2><p>Also, as in the XGBoost notebook, we will be doing some initial data processing. The first few steps are the same as in the XGBoost example. To begin with, we will read in each of the reviews and combine them into a single input structure. Then, we will split the dataset into a training set and a testing set.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="k">def</span> <span class="nf">read_imdb_data</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;../data/aclImdb&#39;</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">]:</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">labels</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">for</span> <span class="n">sentiment</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="s1">&#39;neg&#39;</span><span class="p">]:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">sentiment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">sentiment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">sentiment</span><span class="p">,</span> <span class="s1">&#39;*.txt&#39;</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">as</span> <span class="n">review</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">sentiment</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">review</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                    <span class="c1"># Here we represent a positive review by &#39;1&#39; and a negative review by &#39;0&#39;</span>
+                    <span class="n">labels</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">sentiment</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">sentiment</span> <span class="o">==</span> <span class="s1">&#39;pos&#39;</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+                    
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">sentiment</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">data_type</span><span class="p">][</span><span class="n">sentiment</span><span class="p">]),</span> \
+                    <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2"> data size does not match labels size&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">sentiment</span><span class="p">)</span>
+                
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">read_imdb_data</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IMDB reviews: train = </span><span class="si">{}</span><span class="s2"> pos / </span><span class="si">{}</span><span class="s2"> neg, test = </span><span class="si">{}</span><span class="s2"> pos / </span><span class="si">{}</span><span class="s2"> neg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;pos&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;neg&#39;</span><span class="p">]),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;pos&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;neg&#39;</span><span class="p">])))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>IMDB reviews: train = 12500 pos / 12500 neg, test = 12500 pos / 12500 neg
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we've read the raw training and testing data from the downloaded dataset, we will combine the positive and negative reviews and shuffle the resulting records.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">shuffle</span>
+
+<span class="k">def</span> <span class="nf">prepare_imdb_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prepare training and test sets from IMDb movie reviews.&quot;&quot;&quot;</span>
+    
+    <span class="c1">#Combine positive and negative reviews and labels</span>
+    <span class="n">data_train</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;neg&#39;</span><span class="p">]</span>
+    <span class="n">data_test</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;neg&#39;</span><span class="p">]</span>
+    <span class="n">labels_train</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;neg&#39;</span><span class="p">]</span>
+    <span class="n">labels_test</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;neg&#39;</span><span class="p">]</span>
+    
+    <span class="c1">#Shuffle reviews and corresponding labels within training and test sets</span>
+    <span class="n">data_train</span><span class="p">,</span> <span class="n">labels_train</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">data_train</span><span class="p">,</span> <span class="n">labels_train</span><span class="p">)</span>
+    <span class="n">data_test</span><span class="p">,</span> <span class="n">labels_test</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">labels_test</span><span class="p">)</span>
+    
+    <span class="c1"># Return a unified training data, test data, training labels, test labets</span>
+    <span class="k">return</span> <span class="n">data_train</span><span class="p">,</span> <span class="n">data_test</span><span class="p">,</span> <span class="n">labels_train</span><span class="p">,</span> <span class="n">labels_test</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">prepare_imdb_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IMDb reviews (combined): train = </span><span class="si">{}</span><span class="s2">, test = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_X</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_X</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>IMDb reviews (combined): train = 25000, test = 25000
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we have our training and testing sets unified and prepared, we should do a quick check and see an example of the data our model will be trained on. This is generally a good idea as it allows you to see how each of the further processing steps affects the reviews and it also ensures that the data has been loaded correctly.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">train_X</span><span class="p">[</span><span class="mi">100</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">train_y</span><span class="p">[</span><span class="mi">100</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Who would think Andy Griffith&#39;s &#34;Helen Crump&#34; (Aneta Corsaut) had a Steve McQueen movie in her past? But that is only one of several weird and wonderful things about the ultimate 1950s teenagers-battle-creatures movie, which might best be described as Rebel Without A Cause meets God Knows What From Outer Space. The Rebel is Steven McQueen (who would shortly decide that &#34;Steve&#34; sounded less prissy), a good boy with just enough wild to be interesting; the very wholesome yet understanding girlfriend is the aforementioned Aneta Corsaut. It was bad enough when their date was disrupted by teenage hot-rodders, but they are considerably more nonplussed when they encounter a gelatinous, man-eating What Is It that rides down to earth on its own hotrod meteor--and begins gobbling up townfolk right and left. But will the grown ups believe them? Of course not, what do they know, they&#39;re just kids!&lt;br /&gt;&lt;br /&gt;The movie is teeny bopper at its teeny bopping best. The actors take the rather pretentious script very seriously, with many a soulful look into each other eyes, and the &#34;adult&#34; supporting cast probably says &#34;Kids!&#34; very third sentence or so. But the real pleasure of the film its creature, which is well imagined, well-executed, and often manages to generate a surprising degree of suspense. And although clearly on the cheap side (check out those miniature sets, guys!), THE BLOB is actually a fairly well-made film--and there&#39;s that catchy little theme song thrown in for good measure. The 40-plus crowd (myself included) will enjoy the movie as nostalgia, but that won&#39;t prevent them from hooting right along with the younger set at its whole-milk-and-white-bread 1950s sensibility, and the film would be a great choice for either family-movie night or a more sophisticated &#34;grown ups only&#34; get together. Make plenty of Jello cubes for movie snacking! Gary F. Taylor, aka GFT, Amazon Reviewer
+1
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first step in processing the reviews is to make sure that any html tags that appear should be removed. In addition we wish to tokenize our input, that way words such as <em>entertained</em> and <em>entertaining</em> are considered the same with regard to sentiment analysis.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.stem.porter</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="k">def</span> <span class="nf">review_to_words</span><span class="p">(</span><span class="n">review</span><span class="p">):</span>
+    <span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;stopwords&quot;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">stemmer</span> <span class="o">=</span> <span class="n">PorterStemmer</span><span class="p">()</span>
+    
+    <span class="n">text</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">review</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="c1"># Remove HTML tags</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-zA-Z0-9]&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="c1"># Convert to lower case</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="c1"># Split string into words</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span> <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">)]</span> <span class="c1"># Remove stopwords</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">PorterStemmer</span><span class="p">()</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span> <span class="c1"># stem</span>
+    
+    <span class="k">return</span> <span class="n">words</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>review_to_words</code> method defined above uses <code>BeautifulSoup</code> to remove any html tags that appear and uses the <code>nltk</code> package to tokenize the reviews. As a check to ensure we know how everything is working, try applying <code>review_to_words</code> to one of the reviews in the training set.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># TODO: Apply review_to_words to a review (train_X[100] or any other review)</span>
+<span class="n">review_to_words</span><span class="p">(</span><span class="n">train_X</span><span class="p">[</span><span class="mi">150</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;actress&#39;,
+ &#39;make&#39;,
+ &#39;movi&#39;,
+ &#39;africa&#39;,
+ &#39;kidnap&#39;,
+ &#39;taken&#39;,
+ &#39;jungl&#39;,
+ &#39;held&#39;,
+ &#39;ransom&#39;,
+ &#39;produc&#39;,
+ &#39;hire&#39;,
+ &#39;one&#39;,
+ &#39;go&#39;,
+ &#39;bring&#39;,
+ &#39;back&#39;,
+ &#39;complic&#39;,
+ &#39;everyth&#39;,
+ &#39;cannib&#39;,
+ &#39;jungl&#39;,
+ &#39;worship&#39;,
+ &#39;realli&#39;,
+ &#39;ugli&#39;,
+ &#39;look&#39;,
+ &#39;god&#39;,
+ &#39;like&#39;,
+ &#39;eat&#39;,
+ &#39;nake&#39;,
+ &#39;women&#39;,
+ &#39;gori&#39;,
+ &#39;sleazi&#39;,
+ &#39;movi&#39;,
+ &#39;copiou&#39;,
+ &#39;amount&#39;,
+ &#39;nuditi&#39;,
+ &#39;violenc&#39;,
+ &#39;mention&#39;,
+ &#39;violenc&#39;,
+ &#39;nude&#39;,
+ &#39;peopl&#39;,
+ &#39;exploit&#39;,
+ &#39;film&#39;,
+ &#39;design&#39;,
+ &#39;appeal&#39;,
+ &#39;deepest&#39;,
+ &#39;darkest&#39;,
+ &#39;part&#39;,
+ &#39;movi&#39;,
+ &#39;bore&#39;,
+ &#39;film&#39;,
+ &#39;would&#39;,
+ &#39;classic&#39;,
+ &#39;let&#39;,
+ &#39;face&#39;,
+ &#39;despit&#39;,
+ &#39;gore&#39;,
+ &#39;nasti&#39;,
+ &#39;sex&#39;,
+ &#39;abus&#39;,
+ &#39;ugli&#39;,
+ &#39;monster&#39;,
+ &#39;movi&#39;,
+ &#39;snoozer&#39;,
+ &#39;pace&#39;,
+ &#39;kilter&#39;,
+ &#39;put&#39;,
+ &#39;multipl&#39;,
+ &#39;plot&#39;,
+ &#39;line&#39;,
+ &#39;seem&#39;,
+ &#39;happen&#39;,
+ &#39;separ&#39;,
+ &#39;even&#39;,
+ &#39;though&#39;,
+ &#39;ultim&#39;,
+ &#39;one&#39;,
+ &#39;stori&#39;,
+ &#39;worst&#39;,
+ &#39;almost&#39;,
+ &#39;one&#39;,
+ &#39;say&#39;,
+ &#39;anyth&#39;,
+ &#39;minim&#39;,
+ &#39;dialog&#39;,
+ &#39;concern&#39;,
+ &#39;cruelti&#39;,
+ &#39;one&#39;,
+ &#39;charact&#39;,
+ &#39;protest&#39;,
+ &#39;want&#39;,
+ &#39;quiet&#39;,
+ &#39;dull&#39;,
+ &#39;movi&#39;,
+ &#39;frequent&#39;,
+ &#39;scream&#39;,
+ &#39;victim&#39;,
+ &#39;recommend&#39;,
+ &#39;sleep&#39;,
+ &#39;aid&#39;,
+ &#39;movi&#39;,
+ &#39;avoid&#39;,
+ &#39;unless&#39;,
+ &#39;need&#39;,
+ &#39;sleep&#39;,
+ &#39;unless&#39;,
+ &#39;need&#39;,
+ &#39;see&#39;,
+ &#39;everi&#39;,
+ &#39;euro&#39;,
+ &#39;cannib&#39;,
+ &#39;movi&#39;,
+ &#39;asid&#39;,
+ &#39;videoasia&#39;,
+ &#39;releas&#39;,
+ &#39;part&#39;,
+ &#39;terror&#39;,
+ &#39;tale&#39;,
+ &#39;seri&#39;,
+ &#39;print&#39;,
+ &#39;oddli&#39;,
+ &#39;letter&#39;,
+ &#39;box&#39;,
+ &#39;look&#39;,
+ &#39;result&#39;,
+ &#39;take&#39;,
+ &#39;print&#39;,
+ &#39;japanes&#39;,
+ &#39;sourc&#39;,
+ &#39;fog&#39;,
+ &#39;crop&#39;,
+ &#39;remov&#39;,
+ &#39;subtitl&#39;,
+ &#39;print&#39;,
+ &#39;also&#39;,
+ &#39;open&#39;,
+ &#39;titl&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question:</strong> Above we mentioned that <code>review_to_words</code> method removes html formatting and allows us to tokenize the words found in a review, for example, converting <em>entertained</em> and <em>entertaining</em> into <em>entertain</em> so that they are treated as though they are the same word. What else, if anything, does this method do to the input?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Answer:</strong> Ths method 'review_to_words' removes punctuation marks and also some last letters of some of the words. It also removes stop words.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The method below applies the <code>review_to_words</code> method to each of the reviews in the training and testing datasets. In addition it caches the results. This is because performing this processing step can take a long time. This way if you are unable to complete the notebook in the current session, you can come back without needing to process the data a second time.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;../cache&quot;</span><span class="p">,</span> <span class="s2">&quot;sentiment_analysis&quot;</span><span class="p">)</span>  <span class="c1"># where to store cache files</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># ensure cache directory exists</span>
+
+<span class="k">def</span> <span class="nf">preprocess_data</span><span class="p">(</span><span class="n">data_train</span><span class="p">,</span> <span class="n">data_test</span><span class="p">,</span> <span class="n">labels_train</span><span class="p">,</span> <span class="n">labels_test</span><span class="p">,</span>
+                    <span class="n">cache_dir</span><span class="o">=</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">cache_file</span><span class="o">=</span><span class="s2">&quot;preprocessed_data.pkl&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert each review to words; read from cache if available.&quot;&quot;&quot;</span>
+
+    <span class="c1"># If cache_file is not None, try to read from it first</span>
+    <span class="n">cache_data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">cache_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">cache_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read preprocessed data from cache file:&quot;</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># unable to read from cache, but that&#39;s okay</span>
+    
+    <span class="c1"># If cache is missing, then do the heavy lifting</span>
+    <span class="k">if</span> <span class="n">cache_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Preprocess training and test data to obtain words for each review</span>
+        <span class="c1">#words_train = list(map(review_to_words, data_train))</span>
+        <span class="c1">#words_test = list(map(review_to_words, data_test))</span>
+        <span class="n">words_train</span> <span class="o">=</span> <span class="p">[</span><span class="n">review_to_words</span><span class="p">(</span><span class="n">review</span><span class="p">)</span> <span class="k">for</span> <span class="n">review</span> <span class="ow">in</span> <span class="n">data_train</span><span class="p">]</span>
+        <span class="n">words_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">review_to_words</span><span class="p">(</span><span class="n">review</span><span class="p">)</span> <span class="k">for</span> <span class="n">review</span> <span class="ow">in</span> <span class="n">data_test</span><span class="p">]</span>
+        
+        <span class="c1"># Write to cache file for future runs</span>
+        <span class="k">if</span> <span class="n">cache_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cache_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">words_train</span><span class="o">=</span><span class="n">words_train</span><span class="p">,</span> <span class="n">words_test</span><span class="o">=</span><span class="n">words_test</span><span class="p">,</span>
+                              <span class="n">labels_train</span><span class="o">=</span><span class="n">labels_train</span><span class="p">,</span> <span class="n">labels_test</span><span class="o">=</span><span class="n">labels_test</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cache_data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote preprocessed data to cache file:&quot;</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Unpack data loaded from cache file</span>
+        <span class="n">words_train</span><span class="p">,</span> <span class="n">words_test</span><span class="p">,</span> <span class="n">labels_train</span><span class="p">,</span> <span class="n">labels_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;words_train&#39;</span><span class="p">],</span>
+                <span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;words_test&#39;</span><span class="p">],</span> <span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;labels_train&#39;</span><span class="p">],</span> <span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;labels_test&#39;</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">words_train</span><span class="p">,</span> <span class="n">words_test</span><span class="p">,</span> <span class="n">labels_train</span><span class="p">,</span> <span class="n">labels_test</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Preprocess data</span>
+<span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Read preprocessed data from cache file: preprocessed_data.pkl
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Transform-the-data">Transform the data<a class="anchor-link" href="#Transform-the-data"> </a></h2><p>In the XGBoost notebook we transformed the data from its word representation to a bag-of-words feature representation. For the model we are going to construct in this notebook we will construct a feature representation which is very similar. To start, we will represent each word as an integer. Of course, some of the words that appear in the reviews occur very infrequently and so likely don't contain much information for the purposes of sentiment analysis. The way we will deal with this problem is that we will fix the size of our working vocabulary and we will only include the words that appear most frequently. We will then combine all of the infrequent words into a single category and, in our case, we will label it as <code>1</code>.</p>
+<p>Since we will be using a recurrent neural network, it will be convenient if the length of each review is the same. To do this, we will fix a size for our reviews and then pad short reviews with the category 'no word' (which we will label <code>0</code>) and truncate long reviews.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="(TODO)-Create-a-word-dictionary">(TODO) Create a word dictionary<a class="anchor-link" href="#(TODO)-Create-a-word-dictionary"> </a></h3><p>To begin with, we need to construct a way to map words that appear in the reviews to integers. Here we fix the size of our vocabulary (including the 'no word' and 'infrequent' categories) to be <code>5000</code> but you may wish to change this to see how it affects the model.</p>
+<blockquote><p><strong>TODO:</strong> Complete the implementation for the <code>build_dict()</code> method below. Note that even though the vocab_size is set to <code>5000</code>, we only want to construct a mapping for the most frequently appearing <code>4998</code> words. This is because we want to reserve the special labels <code>0</code> for 'no word' and <code>1</code> for 'infrequent word'.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">build_dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">vocab_size</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct and return a dictionary mapping each of the most frequently appearing words to a unique integer.&quot;&quot;&quot;</span>
+    
+    <span class="c1"># TODO: Determine how often each word appears in `data`. Note that `data` is a list of sentences and that a</span>
+    <span class="c1">#       sentence is a list of words.</span>
+    
+    <span class="n">word_count</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># A dict storing the words that appear in the reviews along with how often they occur</span>
+    
+    <span class="k">for</span> <span class="n">review</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">review</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">word_count</span><span class="p">:</span>
+                <span class="n">word_count</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">word_count</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                
+    <span class="c1"># TODO: Sort the words found in `data` so that sorted_words[0] is the most frequently appearing word and</span>
+    <span class="c1">#       sorted_words[-1] is the least frequently appearing word.</span>
+    
+    <span class="n">sorted_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">word_count</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+    
+    <span class="n">word_dict</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># This is what we are building, a dictionary that translates words into integers</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_words</span><span class="p">[:</span><span class="n">vocab_size</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]):</span> <span class="c1"># The -2 is so that we save room for the &#39;no word&#39;</span>
+        <span class="n">word_dict</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span>                              <span class="c1"># &#39;infrequent&#39; labels</span>
+        
+    <span class="k">return</span> <span class="n">word_dict</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">word_dict</span> <span class="o">=</span> <span class="n">build_dict</span><span class="p">(</span><span class="n">train_X</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question:</strong> What are the five most frequently appearing (tokenized) words in the training set? Does it makes sense that these words appear frequently in the training set?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Answer:</strong> movi, film, one, like and time are the words commonly used in movie review, however the word one being in the list is quite interesting</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># TODO: Use this space to determine the five most frequently appearing words in the training set.</span>
+<span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">word_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">keys</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[&#39;movi&#39;, &#39;film&#39;, &#39;one&#39;, &#39;like&#39;, &#39;time&#39;]</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Save-word_dict">Save <code>word_dict</code><a class="anchor-link" href="#Save-word_dict"> </a></h3><p>Later on when we construct an endpoint which processes a submitted review we will need to make use of the <code>word_dict</code> which we have created. As such, we will save it to a file now for future use.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_dir</span> <span class="o">=</span> <span class="s1">&#39;../data/pytorch&#39;</span> <span class="c1"># The folder we will use for storing data</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span> <span class="c1"># Make sure that the folder exists</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">&#39;word_dict.pkl&#39;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Transform-the-reviews">Transform the reviews<a class="anchor-link" href="#Transform-the-reviews"> </a></h3><p>Now that we have our word dictionary which allows us to transform the words appearing in the reviews into integers, it is time to make use of it and convert our reviews to their integer sequence representation, making sure to pad or truncate to a fixed length, which in our case is <code>500</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">convert_and_pad</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="n">NOWORD</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># We will use 0 to represent the &#39;no word&#39; category</span>
+    <span class="n">INFREQ</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># and we use 1 to represent the infrequent words, i.e., words not appearing in word_dict</span>
+    
+    <span class="n">working_sentence</span> <span class="o">=</span> <span class="p">[</span><span class="n">NOWORD</span><span class="p">]</span> <span class="o">*</span> <span class="n">pad</span>
+    
+    <span class="k">for</span> <span class="n">word_index</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">[:</span><span class="n">pad</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">word_dict</span><span class="p">:</span>
+            <span class="n">working_sentence</span><span class="p">[</span><span class="n">word_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">word_dict</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">working_sentence</span><span class="p">[</span><span class="n">word_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">INFREQ</span>
+            
+    <span class="k">return</span> <span class="n">working_sentence</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="p">),</span> <span class="n">pad</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">convert_and_pad_data</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">converted</span><span class="p">,</span> <span class="n">leng</span> <span class="o">=</span> <span class="n">convert_and_pad</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">pad</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converted</span><span class="p">)</span>
+        <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">leng</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_X</span><span class="p">,</span> <span class="n">train_X_len</span> <span class="o">=</span> <span class="n">convert_and_pad_data</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">train_X</span><span class="p">)</span>
+<span class="n">test_X</span><span class="p">,</span> <span class="n">test_X_len</span> <span class="o">=</span> <span class="n">convert_and_pad_data</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">test_X</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As a quick check to make sure that things are working as intended, check to see what one of the reviews in the training set looks like after having been processeed. Does this look reasonable? What is the length of a review in the training set?</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Use this cell to examine one of the processed reviews to make sure everything is working as intended.</span>
+<span class="n">train_X</span><span class="p">[</span><span class="mi">150</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([  28,    1,  238, 4148, 2727,    1, 3487,    1,    1,  494,  255,
+        185, 1508,    1,    1,    4,    1, 3856,   42,  136,  141,   22,
+          3,    1, 2214,    1, 4413,  740,  613, 4512,   68, 4413,  646,
+         95,    1,  365,   11,    1,    1,  397, 1508,    1,  340, 1508,
+       4413,  116,  259,  115,   59,    4,  416,  381,  371,   65,  670,
+       1152, 4413,  485,  815,    1,  745,  228,   16,   24,   40, 1314,
+       2512, 1984,   30, 1841, 2524,  671,    3,  798,  531,  353,  710,
+       1984,   83, 3272,  834, 1061, 1018,  229,   83,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+          0,    0,    0,    0,    0])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question:</strong> In the cells above we use the <code>preprocess_data</code> and <code>convert_and_pad_data</code> methods to process both the training and testing set. Why or why not might this be a problem?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Answer:</strong> It gives up the information of words not appreaing in word_dict. All these input vectors are now the same size.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-3:-Upload-the-data-to-S3">Step 3: Upload the data to S3<a class="anchor-link" href="#Step-3:-Upload-the-data-to-S3"> </a></h2><p>As in the XGBoost notebook, we will need to upload the training dataset to S3 in order for our training code to access it. For now we will save it locally and we will upload to S3 later on.</p>
+<h3 id="Save-the-processed-training-dataset-locally">Save the processed training dataset locally<a class="anchor-link" href="#Save-the-processed-training-dataset-locally"> </a></h3><p>It is important to note the format of the data that we are saving as we will need to know it when we write the training code. In our case, each row of the dataset has the form <code>label</code>, <code>length</code>, <code>review[500]</code> where <code>review[500]</code> is a sequence of <code>500</code> integers representing the words in the review.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    
+<span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">train_y</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">train_X_len</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">train_X</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">&#39;train.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Uploading-the-training-data">Uploading the training data<a class="anchor-link" href="#Uploading-the-training-data"> </a></h3><p>Next, we need to upload the training data to the SageMaker default S3 bucket so that we can provide access to it while training our model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sagemaker</span>
+
+<span class="n">sagemaker_session</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">sagemaker_session</span><span class="o">.</span><span class="n">default_bucket</span><span class="p">()</span>
+<span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;sagemaker/sentiment_rnn&#39;</span>
+
+<span class="n">role</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">get_execution_role</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="n">sagemaker_session</span><span class="o">.</span><span class="n">upload_data</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="n">bucket</span><span class="p">,</span> <span class="n">key_prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>NOTE:</strong> The cell above uploads the entire contents of our data directory. This includes the <code>word_dict.pkl</code> file. This is fortunate as we will need this later on when we create an endpoint that accepts an arbitrary review. For now, we will just take note of the fact that it resides in the data directory (and so also in the S3 training bucket) and that we will need to make sure it gets saved in the model directory.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-4:-Build-and-Train-the-PyTorch-Model">Step 4: Build and Train the PyTorch Model<a class="anchor-link" href="#Step-4:-Build-and-Train-the-PyTorch-Model"> </a></h2><p>In the XGBoost notebook we discussed what a model is in the SageMaker framework. In particular, a model comprises three objects</p>
+<ul>
+<li>Model Artifacts,</li>
+<li>Training Code, and</li>
+<li>Inference Code,</li>
+</ul>
+<p>each of which interact with one another. In the XGBoost example we used training and inference code that was provided by Amazon. Here we will still be using containers provided by Amazon with the added benefit of being able to include our own custom code.</p>
+<p>We will start by implementing our own neural network in PyTorch along with a training script. For the purposes of this project we have provided the necessary model object in the <code>model.py</code> file, inside of the <code>train</code> folder. You can see the provided implementation by running the cell below.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pygmentize train/model.py
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">torch.nn</span> <span class="ansi-blue-fg">as</span> <span class="ansi-cyan-fg ansi-underline">nn</span>
+
+<span class="ansi-blue-fg">class</span> <span class="ansi-green-fg ansi-underline">LSTMClassifier</span>(nn.Module):
+    <span class="ansi-yellow-fg">&#34;&#34;&#34;</span>
+<span class="ansi-yellow-fg">    This is the simple RNN model we will be using to perform Sentiment Analysis.</span>
+<span class="ansi-yellow-fg">    &#34;&#34;&#34;</span>
+
+    <span class="ansi-blue-fg">def</span> <span class="ansi-green-fg">__init__</span>(<span class="ansi-cyan-fg">self</span>, embedding_dim, hidden_dim, vocab_size):
+        <span class="ansi-yellow-fg">&#34;&#34;&#34;</span>
+<span class="ansi-yellow-fg">        Initialize the model by settingg up the various layers.</span>
+<span class="ansi-yellow-fg">        &#34;&#34;&#34;</span>
+        <span class="ansi-cyan-fg">super</span>(LSTMClassifier, <span class="ansi-cyan-fg">self</span>).<span class="ansi-green-fg">__init__</span>()
+
+        <span class="ansi-cyan-fg">self</span>.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=<span class="ansi-blue-fg">0</span>)
+        <span class="ansi-cyan-fg">self</span>.lstm = nn.LSTM(embedding_dim, hidden_dim)
+        <span class="ansi-cyan-fg">self</span>.dense = nn.Linear(in_features=hidden_dim, out_features=<span class="ansi-blue-fg">1</span>)
+        <span class="ansi-cyan-fg">self</span>.sig = nn.Sigmoid()
+        
+        <span class="ansi-cyan-fg">self</span>.word_dict = <span class="ansi-cyan-fg">None</span>
+
+    <span class="ansi-blue-fg">def</span> <span class="ansi-green-fg">forward</span>(<span class="ansi-cyan-fg">self</span>, x):
+        <span class="ansi-yellow-fg">&#34;&#34;&#34;</span>
+<span class="ansi-yellow-fg">        Perform a forward pass of our model on some input.</span>
+<span class="ansi-yellow-fg">        &#34;&#34;&#34;</span>
+        x = x.t()
+        lengths = x[<span class="ansi-blue-fg">0</span>,:]
+        reviews = x[<span class="ansi-blue-fg">1</span>:,:]
+        embeds = <span class="ansi-cyan-fg">self</span>.embedding(reviews)
+        lstm_out, _ = <span class="ansi-cyan-fg">self</span>.lstm(embeds)
+        out = <span class="ansi-cyan-fg">self</span>.dense(lstm_out)
+        out = out[lengths - <span class="ansi-blue-fg">1</span>, <span class="ansi-cyan-fg">range</span>(<span class="ansi-cyan-fg">len</span>(lengths))]
+        <span class="ansi-blue-fg">return</span> <span class="ansi-cyan-fg">self</span>.sig(out.squeeze())
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The important takeaway from the implementation provided is that there are three parameters that we may wish to tweak to improve the performance of our model. These are the embedding dimension, the hidden dimension and the size of the vocabulary. We will likely want to make these parameters configurable in the training script so that if we wish to modify them we do not need to modify the script itself. We will see how to do this later on. To start we will write some of the training code in the notebook so that we can more easily diagnose any issues that arise.</p>
+<p>First we will load a small portion of the training data set to use as a sample. It would be very time consuming to try and train the model completely in the notebook as we do not have access to a gpu and the compute instance that we are using is not particularly powerful. However, we can work on a small bit of the data to get a feel for how our training script is behaving.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.utils.data</span>
+
+<span class="c1"># Read in only the first 250 rows</span>
+<span class="n">train_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">&#39;train.csv&#39;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
+
+<span class="c1"># Turn the input pandas dataframe into tensors</span>
+<span class="n">train_sample_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">train_sample</span><span class="p">[[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">train_sample_X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">train_sample</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+
+<span class="c1"># Build the dataset</span>
+<span class="n">train_sample_ds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TensorDataset</span><span class="p">(</span><span class="n">train_sample_X</span><span class="p">,</span> <span class="n">train_sample_y</span><span class="p">)</span>
+<span class="c1"># Build the dataloader</span>
+<span class="n">train_sample_dl</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_sample_ds</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="(TODO)-Writing-the-training-method">(TODO) Writing the training method<a class="anchor-link" href="#(TODO)-Writing-the-training-method"> </a></h3><p>Next we need to write the training code itself. This should be very similar to training methods that you have written before to train PyTorch models. We will leave any difficult aspects such as model saving / loading and parameter loading until a little later.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">epochs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">train_loader</span><span class="p">:</span>         
+            <span class="n">batch_X</span><span class="p">,</span> <span class="n">batch_y</span> <span class="o">=</span> <span class="n">batch</span>
+            
+            <span class="n">batch_X</span> <span class="o">=</span> <span class="n">batch_X</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">batch_y</span> <span class="o">=</span> <span class="n">batch_y</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            
+            <span class="c1"># TODO: Complete this train method to train the model provided.</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">batch_X</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">batch_y</span><span class="p">)</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Epoch: </span><span class="si">{}</span><span class="s2">, BCELoss: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Supposing we have the training method above, we will test that it is working by writing a bit of code in the notebook that executes our training method on the small sample training set that we loaded earlier. The reason for doing this in the notebook is so that we have an opportunity to fix any errors that arise early when they are easier to diagnose.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">from</span> <span class="nn">train.model</span> <span class="kn">import</span> <span class="n">LSTMClassifier</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">LSTMClassifier</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BCELoss</span><span class="p">()</span>
+
+<span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_sample_dl</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Epoch: 1, BCELoss: 0.6924273371696472
+Epoch: 2, BCELoss: 0.6801935195922851
+Epoch: 3, BCELoss: 0.6707218647003174
+Epoch: 4, BCELoss: 0.6613067507743835
+Epoch: 5, BCELoss: 0.6509132981300354
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In order to construct a PyTorch model using SageMaker we must provide SageMaker with a training script. We may optionally include a directory which will be copied to the container and from which our training code will be run. When the training container is executed it will check the uploaded directory (if there is one) for a <code>requirements.txt</code> file and install any required Python libraries, after which the training script will be run.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="(TODO)-Training-the-model">(TODO) Training the model<a class="anchor-link" href="#(TODO)-Training-the-model"> </a></h3><p>When a PyTorch model is constructed in SageMaker, an entry point must be specified. This is the Python file which will be executed when the model is trained. Inside of the <code>train</code> directory is a file called <code>train.py</code> which has been provided and which contains most of the necessary code to train our model. The only thing that is missing is the implementation of the <code>train()</code> method which you wrote earlier in this notebook.</p>
+<p><strong>TODO</strong>: Copy the <code>train()</code> method written above and paste it into the <code>train/train.py</code> file where required.</p>
+<p>The way that SageMaker passes hyperparameters to the training script is by way of arguments. These arguments can then be parsed and used in the training script. To see how this is done take a look at the provided <code>train/train.py</code> file.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sagemaker.pytorch</span> <span class="kn">import</span> <span class="n">PyTorch</span>
+
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">PyTorch</span><span class="p">(</span><span class="n">entry_point</span><span class="o">=</span><span class="s2">&quot;train.py&quot;</span><span class="p">,</span>
+                    <span class="n">source_dir</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span>
+                    <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
+                    <span class="n">framework_version</span><span class="o">=</span><span class="s1">&#39;0.4.0&#39;</span><span class="p">,</span>
+                    <span class="n">train_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">train_instance_type</span><span class="o">=</span><span class="s1">&#39;ml.m4.xlarge&#39;</span><span class="p">,</span>
+                    <span class="n">hyperparameters</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s1">&#39;epochs&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                        <span class="s1">&#39;hidden_dim&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+                    <span class="p">})</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s1">&#39;training&#39;</span><span class="p">:</span> <span class="n">input_data</span><span class="p">})</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>2020-06-04 11:22:24 Starting - Starting the training job...
+2020-06-04 11:22:26 Starting - Launching requested ML instances......
+2020-06-04 11:23:32 Starting - Preparing the instances for training......
+2020-06-04 11:24:52 Downloading - Downloading input data...
+2020-06-04 11:24:59 Training - Downloading the training image
+<span class="ansi-red-fg">bash: cannot set terminal process group (-1): Inappropriate ioctl for device</span>
+<span class="ansi-red-fg">bash: no job control in this shell</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,061 sagemaker-containers INFO     Imported framework sagemaker_pytorch_container.training</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,063 sagemaker-containers INFO     No GPUs detected (normal if no gpus installed)</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,076 sagemaker_pytorch_container.training INFO     Block until all host DNS lookups succeed.</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,296 sagemaker_pytorch_container.training INFO     Invoking user training script.</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,509 sagemaker-containers INFO     Module train does not provide a setup.py. </span>
+<span class="ansi-red-fg">Generating setup.py</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,509 sagemaker-containers INFO     Generating setup.cfg</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,509 sagemaker-containers INFO     Generating MANIFEST.in</span>
+<span class="ansi-red-fg">2020-06-04 11:25:14,509 sagemaker-containers INFO     Installing module with the following comman:</span>
+<span class="ansi-red-fg">/usr/bin/python -m pip install -U . -r requirements.txt</span>
+<span class="ansi-red-fg">Processing /opt/ml/code</span>
+<span class="ansi-red-fg">Collecting pandas (from -r requirements.txt (line 1))
+  Downloading https://files.pythonhosted.org/packages/74/24/0cdbf8907e1e3bc5a8da03345c23cbed7044330bb8f73bb12e711a640a00/pandas-0.24.2-cp35-cp35m-manylinux1_x86_64.whl (10.0MB)</span>
+<span class="ansi-red-fg">Collecting numpy (from -r requirements.txt (line 2))
+  Downloading https://files.pythonhosted.org/packages/bb/ef/d5a21cbc094d3f4d5b5336494dbcc9550b70c766a8345513c7c24ed18418/numpy-1.16.4-cp35-cp35m-manylinux1_x86_64.whl (17.2MB)</span>
+<span class="ansi-red-fg">Collecting nltk (from -r requirements.txt (line 3))
+  Downloading https://files.pythonhosted.org/packages/8d/5d/825889810b85c303c8559a3fd74d451d80cf3585a851f2103e69576bf583/nltk-3.4.3.zip (1.4MB)</span>
+<span class="ansi-red-fg">Collecting beautifulsoup4 (from -r requirements.txt (line 4))
+  Downloading https://files.pythonhosted.org/packages/1d/5d/3260694a59df0ec52f8b4883f5d23b130bc237602a1411fa670eae12351e/beautifulsoup4-4.7.1-py3-none-any.whl (94kB)</span>
+<span class="ansi-red-fg">Collecting html5lib (from -r requirements.txt (line 5))
+  Downloading https://files.pythonhosted.org/packages/a5/62/bbd2be0e7943ec8504b517e62bab011b4946e1258842bc159e5dfde15b96/html5lib-1.0.1-py2.py3-none-any.whl (117kB)</span>
+<span class="ansi-red-fg">Requirement already satisfied, skipping upgrade: python-dateutil&gt;=2.5.0 in /usr/local/lib/python3.5/dist-packages (from pandas-&gt;-r requirements.txt (line 1)) (2.7.5)</span>
+<span class="ansi-red-fg">Collecting pytz&gt;=2011k (from pandas-&gt;-r requirements.txt (line 1))
+  Downloading https://files.pythonhosted.org/packages/3d/73/fe30c2daaaa0713420d0382b16fbb761409f532c56bdcc514bf7b6262bb6/pytz-2019.1-py2.py3-none-any.whl (510kB)</span>
+<span class="ansi-red-fg">Requirement already satisfied, skipping upgrade: six in /usr/local/lib/python3.5/dist-packages (from nltk-&gt;-r requirements.txt (line 3)) (1.11.0)</span>
+<span class="ansi-red-fg">Collecting soupsieve&gt;=1.2 (from beautifulsoup4-&gt;-r requirements.txt (line 4))
+  Downloading https://files.pythonhosted.org/packages/b9/a5/7ea40d0f8676bde6e464a6435a48bc5db09b1a8f4f06d41dd997b8f3c616/soupsieve-1.9.1-py2.py3-none-any.whl</span>
+<span class="ansi-red-fg">Collecting webencodings (from html5lib-&gt;-r requirements.txt (line 5))
+  Downloading https://files.pythonhosted.org/packages/f4/24/2a3e3df732393fed8b3ebf2ec078f05546de641fe1b667ee316ec1dcf3b7/webencodings-0.5.1-py2.py3-none-any.whl</span>
+<span class="ansi-red-fg">Building wheels for collected packages: nltk, train
+  Running setup.py bdist_wheel for nltk: started
+  Running setup.py bdist_wheel for nltk: finished with status &#39;done&#39;
+  Stored in directory: /root/.cache/pip/wheels/54/40/b7/c56ad418e6cd4d9e1e594b5e138d1ca6eec11a6ee3d464e5bb</span>
+<span class="ansi-red-fg">  Running setup.py bdist_wheel for train: started
+  Running setup.py bdist_wheel for train: finished with status &#39;done&#39;
+  Stored in directory: /tmp/pip-ephem-wheel-cache-8oifb2qr/wheels/35/24/16/37574d11bf9bde50616c67372a334f94fa8356bc7164af8ca3</span>
+<span class="ansi-red-fg">Successfully built nltk train</span>
+<span class="ansi-red-fg">Installing collected packages: pytz, numpy, pandas, nltk, soupsieve, beautifulsoup4, webencodings, html5lib, train
+  Found existing installation: numpy 1.15.4
+    Uninstalling numpy-1.15.4:</span>
+<span class="ansi-red-fg">      Successfully uninstalled numpy-1.15.4</span>
+<span class="ansi-red-fg">Successfully installed beautifulsoup4-4.7.1 html5lib-1.0.1 nltk-3.4.3 numpy-1.16.4 pandas-0.24.2 pytz-2019.1 soupsieve-1.9.1 train-1.0.0 webencodings-0.5.1</span>
+<span class="ansi-red-fg">You are using pip version 18.1, however version 19.1.1 is available.</span>
+<span class="ansi-red-fg">You should consider upgrading via the &#39;pip install --upgrade pip&#39; command.</span>
+<span class="ansi-red-fg">2020-06-04 11:25:26,074 sagemaker-containers INFO     No GPUs detected (normal if no gpus installed)</span>
+<span class="ansi-red-fg">2020-06-04 11:25:26,088 sagemaker-containers INFO     Invoking user script
+</span>
+<span class="ansi-red-fg">Training Env:
+</span>
+<span class="ansi-red-fg">{
+    &#34;network_interface_name&#34;: &#34;eth0&#34;,
+    &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+    &#34;num_cpus&#34;: 4,
+    &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+    &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+    &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+    &#34;job_name&#34;: &#34;sagemaker-pytorch-2020-06-04-11-22-24-190&#34;,
+    &#34;channel_input_dirs&#34;: {
+        &#34;training&#34;: &#34;/opt/ml/input/data/training&#34;
+    },
+    &#34;module_name&#34;: &#34;train&#34;,
+    &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-2-660633772842/sagemaker-pytorch-2020-06-04-11-22-24-190/source/sourcedir.tar.gz&#34;,
+    &#34;user_entry_point&#34;: &#34;train.py&#34;,
+    &#34;log_level&#34;: 20,
+    &#34;hyperparameters&#34;: {
+        &#34;hidden_dim&#34;: 200,
+        &#34;epochs&#34;: 10
+    },
+    &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+    &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+    &#34;framework_module&#34;: &#34;sagemaker_pytorch_container.training:main&#34;,
+    &#34;hosts&#34;: [
+        &#34;algo-1&#34;
+    ],
+    &#34;current_host&#34;: &#34;algo-1&#34;,
+    &#34;additional_framework_parameters&#34;: {},
+    &#34;resource_config&#34;: {
+        &#34;hosts&#34;: [
+            &#34;algo-1&#34;
+        ],
+        &#34;current_host&#34;: &#34;algo-1&#34;,
+        &#34;network_interface_name&#34;: &#34;eth0&#34;
+    },
+    &#34;input_data_config&#34;: {
+        &#34;training&#34;: {
+            &#34;TrainingInputMode&#34;: &#34;File&#34;,
+            &#34;S3DistributionType&#34;: &#34;FullyReplicated&#34;,
+            &#34;RecordWrapperType&#34;: &#34;None&#34;
+        }
+    },
+    &#34;num_gpus&#34;: 0</span>
+<span class="ansi-red-fg">}
+</span>
+<span class="ansi-red-fg">Environment variables:
+</span>
+<span class="ansi-red-fg">SM_CURRENT_HOST=algo-1</span>
+<span class="ansi-red-fg">SM_INPUT_DATA_CONFIG={&#34;training&#34;:{&#34;RecordWrapperType&#34;:&#34;None&#34;,&#34;S3DistributionType&#34;:&#34;FullyReplicated&#34;,&#34;TrainingInputMode&#34;:&#34;File&#34;}}</span>
+<span class="ansi-red-fg">SM_USER_ENTRY_POINT=train.py</span>
+<span class="ansi-red-fg">SM_OUTPUT_DATA_DIR=/opt/ml/output/data</span>
+<span class="ansi-red-fg">SM_HPS={&#34;epochs&#34;:10,&#34;hidden_dim&#34;:200}</span>
+<span class="ansi-red-fg">SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate</span>
+<span class="ansi-red-fg">SM_HP_EPOCHS=10</span>
+<span class="ansi-red-fg">SM_HP_HIDDEN_DIM=200</span>
+<span class="ansi-red-fg">SM_CHANNELS=[&#34;training&#34;]</span>
+<span class="ansi-red-fg">SM_MODEL_DIR=/opt/ml/model</span>
+<span class="ansi-red-fg">SM_NUM_GPUS=0</span>
+<span class="ansi-red-fg">SM_OUTPUT_DIR=/opt/ml/output</span>
+<span class="ansi-red-fg">SM_INPUT_DIR=/opt/ml/input</span>
+<span class="ansi-red-fg">SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1&#34;,&#34;hosts&#34;:[&#34;algo-1&#34;],&#34;network_interface_name&#34;:&#34;eth0&#34;}</span>
+<span class="ansi-red-fg">SM_LOG_LEVEL=20</span>
+<span class="ansi-red-fg">SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;training&#34;:&#34;/opt/ml/input/data/training&#34;},&#34;current_host&#34;:&#34;algo-1&#34;,&#34;framework_module&#34;:&#34;sagemaker_pytorch_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1&#34;],&#34;hyperparameters&#34;:{&#34;epochs&#34;:10,&#34;hidden_dim&#34;:200},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;training&#34;:{&#34;RecordWrapperType&#34;:&#34;None&#34;,&#34;S3DistributionType&#34;:&#34;FullyReplicated&#34;,&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;job_name&#34;:&#34;sagemaker-pytorch-2020-06-04-11-22-24-190&#34;,&#34;log_level&#34;:20,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-2-660633772842/sagemaker-pytorch-2020-06-04-11-22-24-190/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:4,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1&#34;,&#34;hosts&#34;:[&#34;algo-1&#34;],&#34;network_interface_name&#34;:&#34;eth0&#34;},&#34;user_entry_point&#34;:&#34;train.py&#34;}</span>
+<span class="ansi-red-fg">SM_FRAMEWORK_PARAMS={}</span>
+<span class="ansi-red-fg">SM_INPUT_CONFIG_DIR=/opt/ml/input/config</span>
+<span class="ansi-red-fg">SM_HOSTS=[&#34;algo-1&#34;]</span>
+<span class="ansi-red-fg">SM_MODULE_DIR=s3://sagemaker-us-east-2-660633772842/sagemaker-pytorch-2020-06-04-11-22-24-190/source/sourcedir.tar.gz</span>
+<span class="ansi-red-fg">SM_MODULE_NAME=train</span>
+<span class="ansi-red-fg">SM_USER_ARGS=[&#34;--epochs&#34;,&#34;10&#34;,&#34;--hidden_dim&#34;,&#34;200&#34;]</span>
+<span class="ansi-red-fg">PYTHONPATH=/usr/local/bin:/usr/lib/python35.zip:/usr/lib/python3.5:/usr/lib/python3.5/plat-x86_64-linux-gnu:/usr/lib/python3.5/lib-dynload:/usr/local/lib/python3.5/dist-packages:/usr/lib/python3/dist-packages</span>
+<span class="ansi-red-fg">SM_FRAMEWORK_MODULE=sagemaker_pytorch_container.training:main</span>
+<span class="ansi-red-fg">SM_NETWORK_INTERFACE_NAME=eth0</span>
+<span class="ansi-red-fg">SM_NUM_CPUS=4</span>
+<span class="ansi-red-fg">SM_CHANNEL_TRAINING=/opt/ml/input/data/training
+</span>
+<span class="ansi-red-fg">Invoking script with the following command:
+</span>
+<span class="ansi-red-fg">/usr/bin/python -m train --epochs 10 --hidden_dim 200
+
+</span>
+<span class="ansi-red-fg">Using device cpu.</span>
+<span class="ansi-red-fg">Get train data loader.</span>
+<span class="ansi-red-fg">Model loaded with embedding_dim 32, hidden_dim 200, vocab_size 5000.</span>
+
+2020-06-04:26:02 Training - Training image download completed. Training in progress.<span class="ansi-red-fg">Epoch: 1, BCELoss: 0.6771698350809059</span>
+<span class="ansi-red-fg">Epoch: 2, BCELoss: 0.6191755812995288</span>
+<span class="ansi-red-fg">Epoch: 3, BCELoss: 0.5250254960692659</span>
+<span class="ansi-red-fg">Epoch: 4, BCELoss: 0.4307900624615805</span>
+<span class="ansi-red-fg">Epoch: 5, BCELoss: 0.3844200512584375</span>
+<span class="ansi-red-fg">Epoch: 6, BCELoss: 0.3376043636579903</span>
+<span class="ansi-red-fg">Epoch: 7, BCELoss: 0.3183594282184328</span>
+<span class="ansi-red-fg">Epoch: 8, BCELoss: 0.3473552097471393</span>
+<span class="ansi-red-fg">Epoch: 9, BCELoss: 0.39758459128895585</span>
+
+2020-06-04:55 Uploading - Uploading generated training model
+2020-06-04 13:05:55 Completed - Training job completed
+<span class="ansi-red-fg">Epoch: 10, BCELoss: 0.2802868272577013</span>
+<span class="ansi-red-fg">2020-06-04 13:05:48,848 sagemaker-containers INFO     Reporting training SUCCESS</span>
+Billable seconds: 6063
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-5:-Testing-the-model">Step 5: Testing the model<a class="anchor-link" href="#Step-5:-Testing-the-model"> </a></h2><p>As mentioned at the top of this notebook, we will be testing this model by first deploying it and then sending the testing data to the deployed endpoint. We will do this so that we can make sure that the deployed model is working correctly.</p>
+<h2 id="Step-6:-Deploy-the-model-for-testing">Step 6: Deploy the model for testing<a class="anchor-link" href="#Step-6:-Deploy-the-model-for-testing"> </a></h2><p>Now that we have trained our model, we would like to test it to see how it performs. Currently our model takes input of the form <code>review_length, review[500]</code> where <code>review[500]</code> is a sequence of <code>500</code> integers which describe the words present in the review, encoded using <code>word_dict</code>. Fortunately for us, SageMaker provides built-in inference code for models with simple inputs such as this.</p>
+<p>There is one thing that we need to provide, however, and that is a function which loads the saved model. This function must be called <code>model_fn()</code> and takes as its only parameter a path to the directory where the model artifacts are stored. This function must also be present in the python file which we specified as the entry point. In our case the model loading function has been provided and so no changes need to be made.</p>
+<p><strong>NOTE</strong>: When the built-in inference code is run it must import the <code>model_fn()</code> method from the <code>train.py</code> file. This is why the training code is wrapped in a main guard ( ie, <code>if __name__ == '__main__':</code> )</p>
+<p>Since we don't need to change anything in the code that was uploaded during training, we can simply deploy the current model as-is.</p>
+<p><strong>NOTE:</strong> When deploying a model you are asking SageMaker to launch an compute instance that will wait for data to be sent to it. As a result, this compute instance will continue to run until <em>you</em> shut it down. This is important to know since the cost of a deployed endpoint depends on how long it has been running for.</p>
+<p>In other words <strong>If you are no longer using a deployed endpoint, shut it down!</strong></p>
+<p><strong>TODO:</strong> Deploy the trained model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># TODO: Deploy the trained model</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">initial_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;ml.m4.xlarge&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------------------------------------------------------------------------------------!</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-7---Use-the-model-for-testing">Step 7 - Use the model for testing<a class="anchor-link" href="#Step-7---Use-the-model-for-testing"> </a></h2><p>Once deployed, we can read in the test data and send it off to our deployed model to get some results. Once we collect all of the results we can determine how accurate our model is.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test_X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">test_X_len</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">test_X</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># We split the data into chunks and send each chunk seperately, accumulating the results.</span>
+
+<span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">512</span><span class="p">):</span>
+    <span class="n">split_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">split_array</span><span class="p">:</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">array</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">predictions</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">test_X</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="n">accuracy_score</span><span class="p">(</span><span class="n">test_y</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.8554</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question:</strong> How does this model compare to the XGBoost model you created earlier? Why might these two models perform differently on this dataset? Which do <em>you</em> think is better for sentiment analysis?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Answer:</strong>  The difference between the XGBoost model is infinitesimal. The xgb was slightly better but by a small margin.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="(TODO)-More-testing">(TODO) More testing<a class="anchor-link" href="#(TODO)-More-testing"> </a></h3><p>We now have a trained model which has been deployed and which we can send processed reviews to and which returns the predicted sentiment. However, ultimately we would like to be able to send our model an unprocessed review. That is, we would like to send the review itself as a string. For example, suppose we wish to send the following review to our model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test_review</span> <span class="o">=</span> <span class="s1">&#39;The simplest pleasures in life are the best, and this film is one of them. Combining a rather basic storyline of love and adventure this movie transcends the usual weekend fair with wit and unmitigated charm.&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The question we now need to answer is, how do we send this review to our model?</p>
+<p>Recall in the first section of this notebook we did a bunch of data processing to the IMDb dataset. In particular, we did two specific things to the provided reviews.</p>
+<ul>
+<li>Removed any html tags and stemmed the input</li>
+<li>Encoded the review as a sequence of integers using <code>word_dict</code></li>
+</ul>
+<p>In order process the review we will need to repeat these two steps.</p>
+<p><strong>TODO</strong>: Using the <code>review_to_words</code> and <code>convert_and_pad</code> methods from section one, convert <code>test_review</code> into a numpy array <code>test_data</code> suitable to send to our model. Remember that our model expects input of the form <code>review_length, review[500]</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># TODO: Convert test_review into a form usable by the model and save the results in test_data</span>
+<span class="n">test_data_review_to_words</span> <span class="o">=</span> <span class="n">review_to_words</span><span class="p">(</span><span class="n">test_review</span><span class="p">)</span>
+<span class="n">test_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">convert_and_pad</span><span class="p">(</span><span class="n">word_dict</span><span class="p">,</span> <span class="n">test_data_review_to_words</span><span class="p">)[</span><span class="mi">0</span><span class="p">])]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we have processed the review, we can send the resulting array to our model to predict the sentiment of the review.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array(0.5820169, dtype=float32)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since the return value of our model is close to <code>1</code>, we can be certain that the review we submitted is positive.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Delete-the-endpoint">Delete the endpoint<a class="anchor-link" href="#Delete-the-endpoint"> </a></h3><p>Of course, just like in the XGBoost notebook, once we've deployed an endpoint it continues to run until we tell it to shut down. Since we are done using our endpoint for now, we can delete it.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">estimator</span><span class="o">.</span><span class="n">delete_endpoint</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-6-(again)---Deploy-the-model-for-the-web-app">Step 6 (again) - Deploy the model for the web app<a class="anchor-link" href="#Step-6-(again)---Deploy-the-model-for-the-web-app"> </a></h2><p>Now that we know that our model is working, it's time to create some custom inference code so that we can send the model a review which has not been processed and have it determine the sentiment of the review.</p>
+<p>As we saw above, by default the estimator which we created, when deployed, will use the entry script and directory which we provided when creating the model. However, since we now wish to accept a string as input and our model expects a processed review, we need to write some custom inference code.</p>
+<p>We will store the code that we write in the <code>serve</code> directory. Provided in this directory is the <code>model.py</code> file that we used to construct our model, a <code>utils.py</code> file which contains the <code>review_to_words</code> and <code>convert_and_pad</code> pre-processing functions which we used during the initial data processing, and <code>predict.py</code>, the file which will contain our custom inference code. Note also that <code>requirements.txt</code> is present which will tell SageMaker what Python libraries are required by our custom inference code.</p>
+<p>When deploying a PyTorch model in SageMaker, you are expected to provide four functions which the SageMaker inference container will use.</p>
+<ul>
+<li><code>model_fn</code>: This function is the same function that we used in the training script and it tells SageMaker how to load our model.</li>
+<li><code>input_fn</code>: This function receives the raw serialized input that has been sent to the model's endpoint and its job is to de-serialize and make the input available for the inference code.</li>
+<li><code>output_fn</code>: This function takes the output of the inference code and its job is to serialize this output and return it to the caller of the model's endpoint.</li>
+<li><code>predict_fn</code>: The heart of the inference script, this is where the actual prediction is done and is the function which you will need to complete.</li>
+</ul>
+<p>For the simple website that we are constructing during this project, the <code>input_fn</code> and <code>output_fn</code> methods are relatively straightforward. We only require being able to accept a string as input and we expect to return a single value as output. You might imagine though that in a more complex application the input or output may be image data or some other binary data which would require some effort to serialize.</p>
+<h3 id="(TODO)-Writing-inference-code">(TODO) Writing inference code<a class="anchor-link" href="#(TODO)-Writing-inference-code"> </a></h3><p>Before writing our custom inference code, we will begin by taking a look at the code which has been provided.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pygmentize serve/predict.py
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">argparse</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">json</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">os</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">pickle</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">sys</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">sagemaker_containers</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">pandas</span> <span class="ansi-blue-fg">as</span> <span class="ansi-cyan-fg ansi-underline">pd</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">numpy</span> <span class="ansi-blue-fg">as</span> <span class="ansi-cyan-fg ansi-underline">np</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">torch</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">torch.nn</span> <span class="ansi-blue-fg">as</span> <span class="ansi-cyan-fg ansi-underline">nn</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">torch.optim</span> <span class="ansi-blue-fg">as</span> <span class="ansi-cyan-fg ansi-underline">optim</span>
+<span class="ansi-blue-fg">import</span> <span class="ansi-cyan-fg ansi-underline">torch.utils.data</span>
+
+<span class="ansi-blue-fg">from</span> <span class="ansi-cyan-fg ansi-underline">model</span> <span class="ansi-blue-fg">import</span> LSTMClassifier
+
+<span class="ansi-blue-fg">from</span> <span class="ansi-cyan-fg ansi-underline">utils</span> <span class="ansi-blue-fg">import</span> review_to_words, convert_and_pad
+
+<span class="ansi-blue-fg">def</span> <span class="ansi-green-fg">model_fn</span>(model_dir):
+    <span class="ansi-yellow-fg">&#34;&#34;&#34;Load the PyTorch model from the `model_dir` directory.&#34;&#34;&#34;</span>
+    <span class="ansi-blue-fg">print</span>(<span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">Loading model.</span><span class="ansi-yellow-fg">&#34;</span>)
+
+    <span class="ansi-white-fg"># First, load the parameters used to create the model.</span>
+    model_info = {}
+    model_info_path = os.path.join(model_dir, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">model_info.pth</span><span class="ansi-yellow-fg">&#39;</span>)
+    <span class="ansi-blue-fg">with</span> <span class="ansi-cyan-fg">open</span>(model_info_path, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">rb</span><span class="ansi-yellow-fg">&#39;</span>) <span class="ansi-blue-fg">as</span> f:
+        model_info = torch.load(f)
+
+    <span class="ansi-blue-fg">print</span>(<span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">model_info: {}</span><span class="ansi-yellow-fg">&#34;</span>.format(model_info))
+
+    <span class="ansi-white-fg"># Determine the device and construct the model.</span>
+    device = torch.device(<span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">cuda</span><span class="ansi-yellow-fg">&#34;</span> <span class="ansi-blue-fg">if</span> torch.cuda.is_available() <span class="ansi-blue-fg">else</span> <span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">cpu</span><span class="ansi-yellow-fg">&#34;</span>)
+    model = LSTMClassifier(model_info[<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">embedding_dim</span><span class="ansi-yellow-fg">&#39;</span>], model_info[<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">hidden_dim</span><span class="ansi-yellow-fg">&#39;</span>], model_info[<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">vocab_size</span><span class="ansi-yellow-fg">&#39;</span>])
+
+    <span class="ansi-white-fg"># Load the store model parameters.</span>
+    model_path = os.path.join(model_dir, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">model.pth</span><span class="ansi-yellow-fg">&#39;</span>)
+    <span class="ansi-blue-fg">with</span> <span class="ansi-cyan-fg">open</span>(model_path, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">rb</span><span class="ansi-yellow-fg">&#39;</span>) <span class="ansi-blue-fg">as</span> f:
+        model.load_state_dict(torch.load(f))
+
+    <span class="ansi-white-fg"># Load the saved word_dict.</span>
+    word_dict_path = os.path.join(model_dir, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">word_dict.pkl</span><span class="ansi-yellow-fg">&#39;</span>)
+    <span class="ansi-blue-fg">with</span> <span class="ansi-cyan-fg">open</span>(word_dict_path, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">rb</span><span class="ansi-yellow-fg">&#39;</span>) <span class="ansi-blue-fg">as</span> f:
+        model.word_dict = pickle.load(f)
+
+    model.to(device).eval()
+
+    <span class="ansi-blue-fg">print</span>(<span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">Done loading model.</span><span class="ansi-yellow-fg">&#34;</span>)
+    <span class="ansi-blue-fg">return</span> model
+
+<span class="ansi-blue-fg">def</span> <span class="ansi-green-fg">input_fn</span>(serialized_input_data, content_type):
+    <span class="ansi-blue-fg">print</span>(<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">Deserializing the input data.</span><span class="ansi-yellow-fg">&#39;</span>)
+    <span class="ansi-blue-fg">if</span> content_type == <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">text/plain</span><span class="ansi-yellow-fg">&#39;</span>:
+        data = serialized_input_data.decode(<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">utf-8</span><span class="ansi-yellow-fg">&#39;</span>)
+        <span class="ansi-blue-fg">return</span> data
+    <span class="ansi-blue-fg">raise</span> <span class="ansi-cyan-fg">Exception</span>(<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">Requested unsupported ContentType in content_type: </span><span class="ansi-yellow-fg">&#39;</span> + content_type)
+
+<span class="ansi-blue-fg">def</span> <span class="ansi-green-fg">output_fn</span>(prediction_output, accept):
+    <span class="ansi-blue-fg">print</span>(<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">Serializing the generated output.</span><span class="ansi-yellow-fg">&#39;</span>)
+    <span class="ansi-blue-fg">return</span> <span class="ansi-cyan-fg">str</span>(prediction_output)
+
+<span class="ansi-blue-fg">def</span> <span class="ansi-green-fg">predict_fn</span>(input_data, model):
+    <span class="ansi-blue-fg">print</span>(<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">Inferring sentiment of input data.</span><span class="ansi-yellow-fg">&#39;</span>)
+
+    device = torch.device(<span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">cuda</span><span class="ansi-yellow-fg">&#34;</span> <span class="ansi-blue-fg">if</span> torch.cuda.is_available() <span class="ansi-blue-fg">else</span> <span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">cpu</span><span class="ansi-yellow-fg">&#34;</span>)
+    
+    <span class="ansi-blue-fg">if</span> model.word_dict <span class="ansi-magenta-fg">is</span> <span class="ansi-cyan-fg">None</span>:
+        <span class="ansi-blue-fg">raise</span> <span class="ansi-cyan-fg">Exception</span>(<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">Model has not been loaded properly, no word_dict.</span><span class="ansi-yellow-fg">&#39;</span>)
+    
+    <span class="ansi-white-fg"># TODO: Process input_data so that it is ready to be sent to our model.</span>
+    <span class="ansi-white-fg">#       You should produce two variables:</span>
+    <span class="ansi-white-fg">#         data_X   - A sequence of length 500 which represents the converted review</span>
+    <span class="ansi-white-fg">#         data_len - The length of the review</span>
+
+    words = review_to_words(input_data)
+    data_X, data_len = convert_and_pad(model.word_dict, words)
+
+    <span class="ansi-white-fg"># Using data_X and data_len we construct an appropriate input tensor. Remember</span>
+    <span class="ansi-white-fg"># that our model expects input data of the form &#39;len, review[500]&#39;.</span>
+    data_pack = np.hstack((data_len, data_X))
+    data_pack = data_pack.reshape(<span class="ansi-blue-fg">1</span>, -<span class="ansi-blue-fg">1</span>)
+    
+    data = torch.from_numpy(data_pack)
+    data = data.to(device)
+
+    <span class="ansi-white-fg"># Make sure to put the model into evaluation mode</span>
+    model.eval()
+
+    <span class="ansi-white-fg"># TODO: Compute the result of applying the model to the input data. The variable `result` should</span>
+    <span class="ansi-white-fg">#       be a numpy array which contains a single integer which is either 1 or 0</span>
+
+    <span class="ansi-blue-fg">with</span> torch.no_grad():
+        output = model.forward(data)
+        
+    result = np.round(output.numpy())
+
+    <span class="ansi-blue-fg">return</span> result
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As mentioned earlier, the <code>model_fn</code> method is the same as the one provided in the training code and the <code>input_fn</code> and <code>output_fn</code> methods are very simple and your task will be to complete the <code>predict_fn</code> method. Make sure that you save the completed file as <code>predict.py</code> in the <code>serve</code> directory.</p>
+<p><strong>TODO</strong>: Complete the <code>predict_fn()</code> method in the <code>serve/predict.py</code> file.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Deploying-the-model">Deploying the model<a class="anchor-link" href="#Deploying-the-model"> </a></h3><p>Now that the custom inference code has been written, we will create and deploy our model. To begin with, we need to construct a new PyTorchModel object which points to the model artifacts created during training and also points to the inference code that we wish to use. Then we can call the deploy method to launch the deployment container.</p>
+<p><strong>NOTE</strong>: The default behaviour for a deployed PyTorch model is to assume that any input passed to the predictor is a <code>numpy</code> array. In our case we want to send a string so we need to construct a simple wrapper around the <code>RealTimePredictor</code> class to accomodate simple strings. In a more complicated situation you may want to provide a serialization object, for example if you wanted to sent image data.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sagemaker.predictor</span> <span class="kn">import</span> <span class="n">RealTimePredictor</span>
+<span class="kn">from</span> <span class="nn">sagemaker.pytorch</span> <span class="kn">import</span> <span class="n">PyTorchModel</span>
+
+<span class="k">class</span> <span class="nc">StringPredictor</span><span class="p">(</span><span class="n">RealTimePredictor</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_name</span><span class="p">,</span> <span class="n">sagemaker_session</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StringPredictor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">endpoint_name</span><span class="p">,</span> <span class="n">sagemaker_session</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s1">&#39;text/plain&#39;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">PyTorchModel</span><span class="p">(</span><span class="n">model_data</span><span class="o">=</span><span class="n">estimator</span><span class="o">.</span><span class="n">model_data</span><span class="p">,</span>
+                     <span class="n">role</span> <span class="o">=</span> <span class="n">role</span><span class="p">,</span>
+                     <span class="n">framework_version</span><span class="o">=</span><span class="s1">&#39;0.4.0&#39;</span><span class="p">,</span>
+                     <span class="n">entry_point</span><span class="o">=</span><span class="s1">&#39;predict.py&#39;</span><span class="p">,</span>
+                     <span class="n">source_dir</span><span class="o">=</span><span class="s1">&#39;serve&#39;</span><span class="p">,</span>
+                     <span class="n">predictor_cls</span><span class="o">=</span><span class="n">StringPredictor</span><span class="p">)</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">initial_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;ml.m4.xlarge&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>---------------------------------------------------------------------------------------!</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Testing-the-model">Testing the model<a class="anchor-link" href="#Testing-the-model"> </a></h3><p>Now that we have deployed our model with the custom inference code, we should test to see if everything is working. Here we test our model by loading the first <code>250</code> positive and negative reviews and send them to the endpoint, then collect the results. The reason for only sending some of the data is that the amount of time it takes for our model to process the input and then perform inference is quite long and so testing the entire data set would be prohibitive.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="k">def</span> <span class="nf">test_reviews</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;../data/aclImdb&#39;</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="mi">250</span><span class="p">):</span>
+    
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ground</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># We make sure to test both positive and negative reviews    </span>
+    <span class="k">for</span> <span class="n">sentiment</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span> <span class="s1">&#39;neg&#39;</span><span class="p">]:</span>
+        
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">sentiment</span><span class="p">,</span> <span class="s1">&#39;*.txt&#39;</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        
+        <span class="n">files_read</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting &#39;</span><span class="p">,</span> <span class="n">sentiment</span><span class="p">,</span> <span class="s1">&#39; files&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Iterate through the files and send them to the predictor</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">as</span> <span class="n">review</span><span class="p">:</span>
+                <span class="c1"># First, we store the ground truth (was the review positive or negative)</span>
+                <span class="k">if</span> <span class="n">sentiment</span> <span class="o">==</span> <span class="s1">&#39;pos&#39;</span><span class="p">:</span>
+                    <span class="n">ground</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ground</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="c1"># Read in the review and convert to &#39;utf-8&#39; for transmission via HTTP</span>
+                <span class="n">review_input</span> <span class="o">=</span> <span class="n">review</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                <span class="c1"># Send the review to the predictor and store the results</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">review_input</span><span class="p">)))</span>
+                
+            <span class="c1"># Sending reviews to our endpoint one at a time takes a while so we</span>
+            <span class="c1"># only send a small number of reviews</span>
+            <span class="n">files_read</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">files_read</span> <span class="o">==</span> <span class="n">stop</span><span class="p">:</span>
+                <span class="k">break</span>
+            
+    <span class="k">return</span> <span class="n">ground</span><span class="p">,</span> <span class="n">results</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ground</span><span class="p">,</span> <span class="n">results</span> <span class="o">=</span> <span class="n">test_reviews</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Starting  pos  files
+Starting  neg  files
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="n">accuracy_score</span><span class="p">(</span><span class="n">ground</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.866</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As an additional test, we can try sending the <code>test_review</code> that we looked at earlier.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_review</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>b&#39;1&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we know our endpoint is working as expected, we can set up the web page that will interact with it. If you don't have time to finish the project now, make sure to skip down to the end of this notebook and shut down your endpoint. You can deploy it again when you come back.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-7-(again):-Use-the-model-for-the-web-app">Step 7 (again): Use the model for the web app<a class="anchor-link" href="#Step-7-(again):-Use-the-model-for-the-web-app"> </a></h2><blockquote><p><strong>TODO:</strong> This entire section and the next contain tasks for you to complete, mostly using the AWS console.
+So far we have been accessing our model endpoint by constructing a predictor object which uses the endpoint and then just using the predictor object to perform inference. What if we wanted to create a web app which accessed our model? The way things are set up currently makes that not possible since in order to access a SageMaker endpoint the app would first have to authenticate with AWS using an IAM role which included access to SageMaker endpoints. However, there is an easier way! We just need to use some additional AWS services.</p>
+</blockquote>
+<p><figure>
+  
+    <img class="docimage" src="/notes/images/copied_from_nb/Web App Diagram.svg" alt="" />
+    
+    
+</figure>
+</p>
+<p>The diagram above gives an overview of how the various services will work together. On the far right is the model which we trained above and which is deployed using SageMaker. On the far left is our web app that collects a user's movie review, sends it off and expects a positive or negative sentiment in return.</p>
+<p>In the middle is where some of the magic happens. We will construct a Lambda function, which you can think of as a straightforward Python function that can be executed whenever a specified event occurs. We will give this function permission to send and recieve data from a SageMaker endpoint.</p>
+<p>Lastly, the method we will use to execute the Lambda function is a new endpoint that we will create using API Gateway. This endpoint will be a url that listens for data to be sent to it. Once it gets some data it will pass that data on to the Lambda function and then return whatever the Lambda function returns. Essentially it will act as an interface that lets our web app communicate with the Lambda function.</p>
+<h3 id="Setting-up-a-Lambda-function">Setting up a Lambda function<a class="anchor-link" href="#Setting-up-a-Lambda-function"> </a></h3><p>The first thing we are going to do is set up a Lambda function. This Lambda function will be executed whenever our public API has data sent to it. When it is executed it will receive the data, perform any sort of processing that is required, send the data (the review) to the SageMaker endpoint we've created and then return the result.</p>
+<h4 id="Part-A:-Create-an-IAM-Role-for-the-Lambda-function">Part A: Create an IAM Role for the Lambda function<a class="anchor-link" href="#Part-A:-Create-an-IAM-Role-for-the-Lambda-function"> </a></h4><p>Since we want the Lambda function to call a SageMaker endpoint, we need to make sure that it has permission to do so. To do this, we will construct a role that we can later give the Lambda function.</p>
+<p>Using the AWS Console, navigate to the <strong>IAM</strong> page and click on <strong>Roles</strong>. Then, click on <strong>Create role</strong>. Make sure that the <strong>AWS service</strong> is the type of trusted entity selected and choose <strong>Lambda</strong> as the service that will use this role, then click <strong>Next: Permissions</strong>.</p>
+<p>In the search box type <code>sagemaker</code> and select the check box next to the <strong>AmazonSageMakerFullAccess</strong> policy. Then, click on <strong>Next: Review</strong>.</p>
+<p>Lastly, give this role a name. Make sure you use a name that you will remember later on, for example <code>LambdaSageMakerRole</code>. Then, click on <strong>Create role</strong>.</p>
+<h4 id="Part-B:-Create-a-Lambda-function">Part B: Create a Lambda function<a class="anchor-link" href="#Part-B:-Create-a-Lambda-function"> </a></h4><p>Now it is time to actually create the Lambda function.</p>
+<p>Using the AWS Console, navigate to the AWS Lambda page and click on <strong>Create a function</strong>. When you get to the next page, make sure that <strong>Author from scratch</strong> is selected. Now, name your Lambda function, using a name that you will remember later on, for example <code>sentiment_analysis_func</code>. Make sure that the <strong>Python 3.6</strong> runtime is selected and then choose the role that you created in the previous part. Then, click on <strong>Create Function</strong>.</p>
+<p>On the next page you will see some information about the Lambda function you've just created. If you scroll down you should see an editor in which you can write the code that will be executed when your Lambda function is triggered. In our example, we will use the code below.</p>
+<div class="highlight"><pre><span></span><span class="c1"># We need to use the low-level library to interact with SageMaker since the SageMaker API</span>
+<span class="c1"># is not available natively through Lambda.</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+
+    <span class="c1"># The SageMaker runtime is what allows us to invoke the endpoint that we&#39;ve created.</span>
+    <span class="n">runtime</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;sagemaker-runtime&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Now we use the SageMaker runtime to invoke our endpoint, sending the review we were given</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">invoke_endpoint</span><span class="p">(</span><span class="n">EndpointName</span> <span class="o">=</span> <span class="s1">&#39;**ENDPOINT NAME HERE**&#39;</span><span class="p">,</span>    <span class="c1"># The name of the endpoint we created</span>
+                                       <span class="n">ContentType</span> <span class="o">=</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">,</span>                 <span class="c1"># The data format that is expected</span>
+                                       <span class="n">Body</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>                       <span class="c1"># The actual review</span>
+
+    <span class="c1"># The response is an HTTP response whose body contains the result of our inference</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;Body&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;statusCode&#39;</span> <span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s1">&#39;headers&#39;</span> <span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;Content-Type&#39;</span> <span class="p">:</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">,</span> <span class="s1">&#39;Access-Control-Allow-Origin&#39;</span> <span class="p">:</span> <span class="s1">&#39;*&#39;</span> <span class="p">},</span>
+        <span class="s1">&#39;body&#39;</span> <span class="p">:</span> <span class="n">result</span>
+    <span class="p">}</span>
+</pre></div>
+<p>Once you have copy and pasted the code above into the Lambda code editor, replace the <code>**ENDPOINT NAME HERE**</code> portion with the name of the endpoint that we deployed earlier. You can determine the name of the endpoint using the code cell below.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">endpoint</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;sagemaker-pytorch-2020-06-04-14-11-55-240&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once you have added the endpoint name to the Lambda function, click on <strong>Save</strong>. Your Lambda function is now up and running. Next we need to create a way for our web app to execute the Lambda function.</p>
+<h3 id="Setting-up-API-Gateway">Setting up API Gateway<a class="anchor-link" href="#Setting-up-API-Gateway"> </a></h3><p>Now that our Lambda function is set up, it is time to create a new API using API Gateway that will trigger the Lambda function we have just created.</p>
+<p>Using AWS Console, navigate to <strong>Amazon API Gateway</strong> and then click on <strong>Get started</strong>.</p>
+<p>On the next page, make sure that <strong>New API</strong> is selected and give the new api a name, for example, <code>sentiment_analysis_api</code>. Then, click on <strong>Create API</strong>.</p>
+<p>Now we have created an API, however it doesn't currently do anything. What we want it to do is to trigger the Lambda function that we created earlier.</p>
+<p>Select the <strong>Actions</strong> dropdown menu and click <strong>Create Method</strong>. A new blank method will be created, select its dropdown menu and select <strong>POST</strong>, then click on the check mark beside it.</p>
+<p>For the integration point, make sure that <strong>Lambda Function</strong> is selected and click on the <strong>Use Lambda Proxy integration</strong>. This option makes sure that the data that is sent to the API is then sent directly to the Lambda function with no processing. It also means that the return value must be a proper response object as it will also not be processed by API Gateway.</p>
+<p>Type the name of the Lambda function you created earlier into the <strong>Lambda Function</strong> text entry box and then click on <strong>Save</strong>. Click on <strong>OK</strong> in the pop-up box that then appears, giving permission to API Gateway to invoke the Lambda function you created.</p>
+<p>The last step in creating the API Gateway is to select the <strong>Actions</strong> dropdown and click on <strong>Deploy API</strong>. You will need to create a new Deployment stage and name it anything you like, for example <code>prod</code>.</p>
+<p>You have now successfully set up a public API to access your SageMaker model. Make sure to copy or write down the URL provided to invoke your newly created public API as this will be needed in the next step. This URL can be found at the top of the page, highlighted in blue next to the text <strong>Invoke URL</strong>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Step-4:-Deploying-our-web-app">Step 4: Deploying our web app<a class="anchor-link" href="#Step-4:-Deploying-our-web-app"> </a></h2><p>Now that we have a publicly available API, we can start using it in a web app. For our purposes, we have provided a simple static html file which can make use of the public api you created earlier.</p>
+<p>In the <code>website</code> folder there should be a file called <code>index.html</code>. Download the file to your computer and open that file up in a text editor of your choice. There should be a line which contains <strong>**REPLACE WITH PUBLIC API URL**</strong>. Replace this string with the url that you wrote down in the last step and then save the file.</p>
+<p>Now, if you open <code>index.html</code> on your local computer, your browser will behave as a local web server and you can use the provided site to interact with your SageMaker model.</p>
+<p>If you'd like to go further, you can host this html file anywhere you'd like, for example using github or hosting a static site on Amazon's S3. Once you have done this you can share the link with anyone you'd like and have them play with it too!</p>
+<blockquote><p><strong>Important Note</strong> In order for the web app to communicate with the SageMaker endpoint, the endpoint has to actually be deployed and running. This means that you are paying for it. Make sure that the endpoint is running when you want to use the web app but that you shut it down when you don't need it, otherwise you will end up with a surprisingly large AWS bill.</p>
+</blockquote>
+<p><strong>TODO:</strong> Make sure that you include the edited <code>index.html</code> file in your project submission.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that your web app is working, trying playing around with it and see how well it works.</p>
+<p><strong>Question</strong>: Give an example of a review that you entered into your web app. What was the predicted sentiment of your example review?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Answer:</strong> I looked at the reviews of Men in black, one positive and the other negative. Here are the results.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Delete-the-endpoint">Delete the endpoint<a class="anchor-link" href="#Delete-the-endpoint"> </a></h3><p>Remember to always shut down your endpoint if you are no longer using it. You are charged for the length of time that the endpoint is running so if you forget and leave it on you could end up with an unexpectedly large bill.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">delete_endpoint</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><a class="u-url" href="/notes/2020/06/04/SageMaker-Project.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/notes/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/notes/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/notes/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/manisaiprasad" title="manisaiprasad"><svg class="svg-icon grey"><use xlink:href="/notes/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/mmanisaiprasad" title="mmanisaiprasad"><svg class="svg-icon grey"><use xlink:href="/notes/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
