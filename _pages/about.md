@@ -1,13 +1,11 @@
 ---
 layout: page
-title: About Me
-permalink: /about/
+title: Contact
+permalink: /contact/
 ---
 
-This is where you put the contents of your *About* page. Like all your pages, it's in [Markdown](https://guides.github.com/features/mastering-markdown/) format.
+You can find me in multiple social media platforms.
 
-This website is powered by **[fastpages](https://github.com/fastai/fastpages)** [^1].
+[GitHub](https://github.com/manisaiprasad/) | [LinkedIn](https://www.linkedin.com/in/manisaiprasad/) | [Instagram](https://www.instagram.com/mmanisai) | [Email](mailto:manisaiprasadam@gmail.com) | [Twitter](https://www.twitter.com/mmanisaiprasad)
 
-
-
-[^1]:a blogging platform that natively supports Jupyter notebooks in addition to other formats.
+- A few of my links at [Site](https://manisaiprasad.ninja)
