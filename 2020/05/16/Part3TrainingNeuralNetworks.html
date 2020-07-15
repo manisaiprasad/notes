@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Training Neural Networks | ManiSaiPrasad</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Training Neural Networks" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<meta property="og:description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<link rel="canonical" href="https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html" />
+<meta property="og:url" content="https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html" />
+<meta property="og:site_name" content="ManiSaiPrasad" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-16T00:00:00-05:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html"},"description":"An easy to use blogging platform with support for Jupyter Notebooks.","@type":"BlogPosting","url":"https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html","headline":"Training Neural Networks","dateModified":"2020-05-16T00:00:00-05:00","datePublished":"2020-05-16T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/notes/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://manisaiprasad.github.io/notes/feed.xml" title="ManiSaiPrasad" /><link rel="shortcut icon" type="image/x-icon" href="/notes/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Training Neural Networks | ManiSaiPrasad</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Training Neural Networks" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<meta property="og:description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<link rel="canonical" href="https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html" />
+<meta property="og:url" content="https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html" />
+<meta property="og:site_name" content="ManiSaiPrasad" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-16T00:00:00-05:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html"},"description":"An easy to use blogging platform with support for Jupyter Notebooks.","@type":"BlogPosting","url":"https://manisaiprasad.github.io/notes/2020/05/16/Part3TrainingNeuralNetworks.html","headline":"Training Neural Networks","dateModified":"2020-05-16T00:00:00-05:00","datePublished":"2020-05-16T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://manisaiprasad.github.io/notes/feed.xml" title="ManiSaiPrasad" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/notes/">ManiSaiPrasad</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/notes/contact/">Contact</a><a class="page-link" href="/notes/search/">Search</a><a class="page-link" href="/notes/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Training Neural Networks</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-05-16T00:00:00-05:00" itemprop="datePublished">
+        May 16, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      11 min read
+    
+</span></p>
+
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/manisaiprasad/notes/tree/master/_notebooks/2020-05-16-Part3TrainingNeuralNetworks.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/notes/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/manisaiprasad/notes/master?filepath=_notebooks%2F2020-05-16-Part3TrainingNeuralNetworks.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/notes/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/manisaiprasad/notes/blob/master/_notebooks/2020-05-16-Part3TrainingNeuralNetworks.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/notes/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-05-16-Part3TrainingNeuralNetworks.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Backpropagation">Backpropagation<a class="anchor-link" href="#Backpropagation"> </a></h2><p>For single layer networks, gradient descent is straightforward to implement. However, it's more complicated for deeper, multilayer neural networks like the one we've built. Complicated enough that it took about 30 years before researchers figured out how to train multilayer networks.</p>
+<p>Training multilayer networks is done through <strong>backpropagation</strong> which is really just an application of the chain rule from calculus. It's easiest to understand if we convert a two layer network into a graph representation.</p>
+<p><figure>
+  
+    <img class="docimage" src="/notes/images/copied_from_nb/assets/backprop_diagram.png" alt="" style="max-width: 550pxpx" />
+    
+    
+</figure>
+</p>
+<p>In the forward pass through the network, our data and operations go from bottom to top here. We pass the input $x$ through a linear transformation $L_1$ with weights $W_1$ and biases $b_1$. The output then goes through the sigmoid operation $S$ and another linear transformation $L_2$. Finally we calculate the loss $\ell$. We use the loss as a measure of how bad the network's predictions are. The goal then is to adjust the weights and biases to minimize the loss.</p>
+<p>To train the weights with gradient descent, we propagate the gradient of the loss backwards through the network. Each operation has some gradient between the inputs and outputs. As we send the gradients backwards, we multiply the incoming gradient with the gradient for the operation. Mathematically, this is really just calculating the gradient of the loss with respect to the weights using the chain rule.</p>
+$$
+\large \frac{\partial \ell}{\partial W_1} = \frac{\partial L_1}{\partial W_1} \frac{\partial S}{\partial L_1} \frac{\partial L_2}{\partial S} \frac{\partial \ell}{\partial L_2}
+$$<p><strong>Note:</strong> I'm glossing over a few details here that require some knowledge of vector calculus, but they aren't necessary to understand what's going on.</p>
+<p>We update our weights using this gradient with some learning rate $\alpha$.</p>
+$$
+\large W^\prime_1 = W_1 - \alpha \frac{\partial \ell}{\partial W_1}
+$$<p>The learning rate $\alpha$ is set such that the weight update steps are small enough that the iterative method settles in a minimum.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Losses-in-PyTorch">Losses in PyTorch<a class="anchor-link" href="#Losses-in-PyTorch"> </a></h2><p>Let's start by seeing how we calculate the loss with PyTorch. Through the <code>nn</code> module, PyTorch provides losses such as the cross-entropy loss (<code>nn.CrossEntropyLoss</code>). You'll usually see the loss assigned to <code>criterion</code>. As noted in the last part, with a classification problem such as MNIST, we're using the softmax function to predict class probabilities. With a softmax output, you want to use cross-entropy as the loss. To actually calculate the loss, you first define the criterion then pass in the output of your network and the correct labels.</p>
+<p>Something really important to note here. Looking at <a href="https://pytorch.org/docs/stable/nn.html#torch.nn.CrossEntropyLoss">the documentation for <code>nn.CrossEntropyLoss</code></a>,</p>
+<blockquote><p>This criterion combines <code>nn.LogSoftmax()</code> and <code>nn.NLLLoss()</code> in one single class.</p>
+<p>The input is expected to contain scores for each class.</p>
+</blockquote>
+<p>This means we need to pass in the raw output of our network into the loss, not the output of the softmax function. This raw output is usually called the <em>logits</em> or <em>scores</em>. We use the logits because softmax gives you probabilities which will often be very close to zero or one but floating-point numbers can't accurately represent values near zero or one (<a href="https://docs.python.org/3/tutorial/floatingpoint.html">read more here</a>). It's usually best to avoid doing calculations with probabilities, typically we use log-probabilities.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">transforms</span>
+
+<span class="c1"># Define a transform to normalize the data</span>
+<span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                                <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,)),</span>
+                              <span class="p">])</span>
+<span class="c1"># Download and load the training data</span>
+<span class="n">trainset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="s1">&#39;~/.pytorch/MNIST_data/&#39;</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+<span class="n">trainloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">trainset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Build a feed-forward network</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># Define the loss</span>
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+<span class="c1"># Get our data</span>
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">trainloader</span><span class="p">))</span>
+<span class="c1"># Flatten images</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Forward pass, get our logits</span>
+<span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="c1"># Calculate the loss with the logits and the labels</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor(2.2810)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In my experience it's more convenient to build the model with a log-softmax output using <code>nn.LogSoftmax</code> or <code>F.log_softmax</code> (<a href="https://pytorch.org/docs/stable/nn.html#torch.nn.LogSoftmax">documentation</a>). Then you can get the actual probabilites by taking the exponential <code>torch.exp(output)</code>. With a log-softmax output, you want to use the negative log likelihood loss, <code>nn.NLLLoss</code> (<a href="https://pytorch.org/docs/stable/nn.html#torch.nn.NLLLoss">documentation</a>).</p>
+<blockquote><p><strong>Exercise:</strong> Build a model that returns the log-softmax as the output and calculate the loss using the negative log likelihood loss.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## Solution</span>
+
+<span class="c1"># Build a feed-forward network</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># Define the loss</span>
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">()</span>
+
+<span class="c1"># Get our data</span>
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">trainloader</span><span class="p">))</span>
+<span class="c1"># Flatten images</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Forward pass, get our log-probabilities</span>
+<span class="n">logps</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="c1"># Calculate the loss with the logps and the labels</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">logps</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor(2.3118)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Autograd">Autograd<a class="anchor-link" href="#Autograd"> </a></h2><p>Now that we know how to calculate a loss, how do we use it to perform backpropagation? Torch provides a module, <code>autograd</code>, for automatically calculating the gradients of tensors. We can use it to calculate the gradients of all our parameters with respect to the loss. Autograd works by keeping track of operations performed on tensors, then going backwards through those operations, calculating gradients along the way. To make sure PyTorch keeps track of operations on a tensor and calculates the gradients, you need to set <code>requires_grad = True</code> on a tensor. You can do this at creation with the <code>requires_grad</code> keyword, or at any time with <code>x.requires_grad_(True)</code>.</p>
+<p>You can turn off gradients for a block of code with the <code>torch.no_grad()</code> content:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="o">&gt;&gt;</span> <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span><span class="o">...</span>     <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span><span class="o">&gt;&gt;&gt;</span> <span class="n">y</span><span class="o">.</span><span class="n">requires_grad</span>
+<span class="kc">False</span>
+</pre></div>
+<p>Also, you can turn on or off gradients altogether with <code>torch.set_grad_enabled(True|False)</code>.</p>
+<p>The gradients are computed with respect to some variable <code>z</code> with <code>z.backward()</code>. This does a backward pass through the operations that created <code>z</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor([[ 0.7652, -1.4550],
+        [-1.2232,  0.1810]])
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor([[ 0.5856,  2.1170],
+        [ 1.4962,  0.0328]])
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below we can see the operation that created <code>y</code>, a power operation <code>PowBackward0</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## grad_fn shows the function that generated this variable</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">grad_fn</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;PowBackward0 object at 0x10b508b70&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The autograd module keeps track of these operations and knows how to calculate the gradient for each one. In this way, it's able to calculate the gradients for a chain of operations, with respect to any one tensor. Let's reduce the tensor <code>y</code> to a scalar value, the mean.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor(1.0579)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can check the gradients for <code>x</code> and <code>y</code> but they are empty currently.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>None
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To calculate the gradients, you need to run the <code>.backward</code> method on a Variable, <code>z</code> for example. This will calculate the gradient for <code>z</code> with respect to <code>x</code></p>
+$$
+\frac{\partial z}{\partial x} = \frac{\partial}{\partial x}\left[\frac{1}{n}\sum_i^n x_i^2\right] = \frac{x}{2}
+$$
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>tensor([[ 0.3826, -0.7275],
+        [-0.6116,  0.0905]])
+tensor([[ 0.3826, -0.7275],
+        [-0.6116,  0.0905]])
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These gradients calculations are particularly useful for neural networks. For training we need the gradients of the weights with respect to the cost. With PyTorch, we run data forward through the network to calculate the loss, then, go backwards to calculate the gradients with respect to the loss. Once we have the gradients we can make a gradient descent step.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loss-and-Autograd-together">Loss and Autograd together<a class="anchor-link" href="#Loss-and-Autograd-together"> </a></h2><p>When we create a network with PyTorch, all of the parameters are initialized with <code>requires_grad = True</code>. This means that when we calculate the loss and call <code>loss.backward()</code>, the gradients for the parameters are calculated. These gradients are used to update the weights with gradient descent. Below you can see an example of calculating the gradients using a backwards pass.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Build a feed-forward network</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">()</span>
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">trainloader</span><span class="p">))</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">logps</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">logps</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Before backward pass: </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+
+<span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;After backward pass: </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Before backward pass: 
+ None
+After backward pass: 
+ tensor(1.00000e-02 *
+       [[-0.0296, -0.0296, -0.0296,  ..., -0.0296, -0.0296, -0.0296],
+        [-0.0441, -0.0441, -0.0441,  ..., -0.0441, -0.0441, -0.0441],
+        [ 0.0177,  0.0177,  0.0177,  ...,  0.0177,  0.0177,  0.0177],
+        ...,
+        [ 0.4021,  0.4021,  0.4021,  ...,  0.4021,  0.4021,  0.4021],
+        [-0.1361, -0.1361, -0.1361,  ..., -0.1361, -0.1361, -0.1361],
+        [-0.0155, -0.0155, -0.0155,  ..., -0.0155, -0.0155, -0.0155]])
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Training-the-network!">Training the network!<a class="anchor-link" href="#Training-the-network!"> </a></h2><p>There's one last piece we need to start training, an optimizer that we'll use to update the weights with the gradients. We get these from PyTorch's <a href="https://pytorch.org/docs/stable/optim.html"><code>optim</code> package</a>. For example we can use stochastic gradient descent with <code>optim.SGD</code>. You can see how to define an optimizer below.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
+
+<span class="c1"># Optimizers require the parameters to optimize and a learning rate</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we know how to use all the individual parts so it's time to see how they work together. Let's consider just one learning step before looping through all the data. The general process with PyTorch:</p>
+<ul>
+<li>Make a forward pass through the network </li>
+<li>Use the network output to calculate the loss</li>
+<li>Perform a backward pass through the network with <code>loss.backward()</code> to calculate the gradients</li>
+<li>Take a step with the optimizer to update the weights</li>
+</ul>
+<p>Below I'll go through one training step and print out the weights and gradients so you can see how it changes. Note that I have a line of code <code>optimizer.zero_grad()</code>. When you do multiple backwards passes with the same parameters, the gradients are accumulated. This means that you need to zero the gradients on each training pass or you'll retain gradients from previous training batches.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initial weights - &#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">trainloader</span><span class="p">))</span>
+<span class="n">images</span><span class="o">.</span><span class="n">resize_</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span>
+
+<span class="c1"># Clear the gradients, do this because gradients are accumulated</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+<span class="c1"># Forward pass, then backward pass, then update weights</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gradient -&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Initial weights -  Parameter containing:
+tensor([[ 3.5691e-02,  2.1438e-02,  2.2862e-02,  ..., -1.3882e-02,
+         -2.3719e-02, -4.6573e-03],
+        [-3.2397e-03,  3.5117e-03, -1.5220e-03,  ...,  1.4400e-02,
+          2.8463e-03,  2.5381e-03],
+        [ 5.6122e-03,  4.8693e-03, -3.4507e-02,  ..., -2.8224e-02,
+         -1.2907e-02, -1.5818e-02],
+        ...,
+        [-1.4372e-02,  2.3948e-02,  2.8374e-02,  ..., -1.5817e-02,
+          3.2719e-02,  8.5537e-03],
+        [-1.1999e-02,  1.9462e-02,  1.3998e-02,  ..., -2.0170e-03,
+          1.4254e-02,  2.2238e-02],
+        [ 3.9955e-04,  4.8263e-03, -2.1819e-02,  ...,  1.2959e-02,
+         -4.4880e-03,  1.4609e-02]])
+Gradient - tensor(1.00000e-02 *
+       [[-0.2609, -0.2609, -0.2609,  ..., -0.2609, -0.2609, -0.2609],
+        [-0.0695, -0.0695, -0.0695,  ..., -0.0695, -0.0695, -0.0695],
+        [ 0.0514,  0.0514,  0.0514,  ...,  0.0514,  0.0514,  0.0514],
+        ...,
+        [ 0.0967,  0.0967,  0.0967,  ...,  0.0967,  0.0967,  0.0967],
+        [-0.1878, -0.1878, -0.1878,  ..., -0.1878, -0.1878, -0.1878],
+        [ 0.0281,  0.0281,  0.0281,  ...,  0.0281,  0.0281,  0.0281]])
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Take an update step and few the new weights</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Updated weights - &#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Updated weights -  Parameter containing:
+tensor([[ 3.5717e-02,  2.1464e-02,  2.2888e-02,  ..., -1.3856e-02,
+         -2.3693e-02, -4.6312e-03],
+        [-3.2327e-03,  3.5187e-03, -1.5150e-03,  ...,  1.4407e-02,
+          2.8533e-03,  2.5450e-03],
+        [ 5.6071e-03,  4.8642e-03, -3.4513e-02,  ..., -2.8230e-02,
+         -1.2912e-02, -1.5823e-02],
+        ...,
+        [-1.4381e-02,  2.3938e-02,  2.8365e-02,  ..., -1.5827e-02,
+          3.2709e-02,  8.5441e-03],
+        [-1.1981e-02,  1.9481e-02,  1.4016e-02,  ..., -1.9983e-03,
+          1.4272e-02,  2.2257e-02],
+        [ 3.9674e-04,  4.8235e-03, -2.1821e-02,  ...,  1.2956e-02,
+         -4.4908e-03,  1.4606e-02]])
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Training-for-real">Training for real<a class="anchor-link" href="#Training-for-real"> </a></h3><p>Now we'll put this algorithm into a loop so we can go through all the images. Some nomenclature, one pass through the entire dataset is called an <em>epoch</em>. So here we're going to loop through <code>trainloader</code> to get our training batches. For each batch, we'll doing a training pass where we calculate the loss, do a backwards pass, and update the weights.</p>
+<blockquote><p><strong>Exercise:</strong> Implement the training pass for our network. If you implemented it correctly, you should see the training loss drop with each epoch.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                      <span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.003</span><span class="p">)</span>
+
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+    <span class="n">running_loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">trainloader</span><span class="p">:</span>
+        <span class="c1"># Flatten MNIST images into a 784 long vector</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    
+        <span class="c1"># TODO: Training pass</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        
+        <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        
+        <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training loss: </span><span class="si">{</span><span class="n">running_loss</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">trainloader</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Training loss: 1.8959971736234897
+Training loss: 0.8684300759644397
+Training loss: 0.537974218426864
+Training loss: 0.43723612014990626
+Training loss: 0.39094475933165945
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With the network trained, we can check out it's predictions.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">helper</span>
+
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">trainloader</span><span class="p">))</span>
+
+<span class="n">img</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span>
+<span class="c1"># Turn off gradients to speed up this part</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="n">logps</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+<span class="c1"># Output of the network are log-probabilities, need to take exponential for probabilities</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logps</span><span class="p">)</span>
+<span class="n">helper</span><span class="o">.</span><span class="n">view_classify</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">ps</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+" />
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now our network is brilliant. It can accurately predict the digits in our images. Next up you'll write the code for training a neural network on a more complex dataset.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><a class="u-url" href="/notes/2020/05/16/Part3TrainingNeuralNetworks.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/notes/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/notes/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/notes/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/manisaiprasad" title="manisaiprasad"><svg class="svg-icon grey"><use xlink:href="/notes/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/mmanisaiprasad" title="mmanisaiprasad"><svg class="svg-icon grey"><use xlink:href="/notes/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
